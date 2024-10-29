@@ -29,15 +29,15 @@ return 0;
 }
 
 
-void getMsg(std::vector<int> &encoded, int M) {
-
-  int a;
-  for (int i = 0; i < M; i++) {
-    while (!cin >> a) {
-      cin.clear();
-      cin.ignore();
+void getMsg(vector<int> &encoded, int M) {
+    int a;
+    for (int i = 0; i < M; i++) {
+        cout << "Enter number #" << (i + 1) << ": ";
+        while (!(cin >> a)) {  // Loop until valid input
+            cin.clear();  //clear the error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+            cout << "Invalid input. Please enter a number: ";
+        }
+        encoded.push_back(a);
     }
-
-    encoded.push_back(a);
-  }
 }
