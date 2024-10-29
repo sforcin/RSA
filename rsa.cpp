@@ -8,6 +8,9 @@ using namespace std;
 void getMsg(vector<int> &encoded, int M);
 bool isPrime(int num);
 bool isTwoPrimes(int n);
+int modInverse(int e, int phi);
+void decoder(int d, int n, const vector <int> &encrypted, vector <int> &decrypted);
+int compute_mod(int d, int n, int C);
 
 int main() {
     // Ask user for e, n, and m, where m is the amount of numbers to decrypt, then ask for the numbers to decrypt
@@ -31,7 +34,7 @@ int main() {
 
     vector<int> encoded;
     getMsg(encoded, m);
-
+//find p and q, using a bool to know when the values are found
    bool found = false; 
    for(int i = 0; i <= n && found != true; ++i){
         for(int j = i + 1; j <= n; ++j){
@@ -57,7 +60,11 @@ int main() {
         phi = (p-1) * (q-1); 
         cout<<"phi: "<<phi<<endl;
 
+int d = modInverse(e, phi);
+cout<<"d: "<<d<<endl;
+
     return 0;
+    
 }
 
 void getMsg(vector<int> &encoded, int M) {
@@ -92,6 +99,16 @@ bool isPrime(int num) {
     return true;
 }
 
+
+/*
+logic:
+    1. if n is less than 4, the number cannot be a product of two primes (2*2)
+    2. check all numbers from 2, to sqrt(n), if i is a factor of n
+    3. if i is a factor of n, then j = n/i
+    4. check if i and j are primes and not the same
+    5. if all conditions are met, return true
+    6. otherwise,return false
+*/
 bool isTwoPrimes(int n) {
     if (n < 4) return false;  
     
@@ -104,4 +121,113 @@ bool isTwoPrimes(int n) {
         }
     }
     return false;
+}
+
+int modInverse(int e, int phi) {
+    int t = 0, newT = 1;
+    int r = phi, newR = e;
+
+    while (newR != 0) {
+        int quotient = r / newR;
+
+        int tempT = newT;
+        newT = t - quotient * newT;
+        t = tempT;
+
+        int tempR = newR;
+        newR = r - quotient * newR;
+        r = tempR;
+    }
+
+    if (r > 1) return -1; // No modular inverse if gcd(e, phi) != 1
+    if (t < 0) t += phi;  // Ensure positive result
+    return t;
+}
+
+void decoder(int d, int n, const vector <int> &encrypted, vector <int> &decrypted) 
+{
+    int num; 
+    for(int i = 0; i < encrypted.size(); i++)
+    {
+        num = compute_mod(d, n, encrypted.at(i)); 
+        decrypted.push_back(num); //create vector of decrupted integers
+    }
+
+}
+
+int compute_mod(int d, int n, int C)
+{
+    vector <int> factors; 
+    int base = C; //cout << "C is " << C << endl; 
+    int power = d; //cout << "power is " << d << endl; 
+    int mod = n; //cout << "n is " << n << endl; 
+    long long int product = 1; 
+    int operand = 1; 
+
+    while(power != 2)
+    {
+        //base  < mod && power is big 
+        //base > mod then evaluate mod
+        if(base < mod)
+        {
+            //cout << "base < mod" << endl; 
+           // cout << "base is " << base << endl << "power is " << power << endl; 
+            if(power % 2 == 0) //squareing by exponentiation
+            {
+                //cout << "even powered " << endl << endl; 
+                base = base * base;
+                //cout << "base^2 is " << base << endl;  
+                power = power / 2; 
+               // cout << "power is " << power << endl; 
+            }
+            else
+            {
+                // cout << "odd powered " << endl << endl; 
+                // cout << "base is" << base << endl; 
+                factors.push_back(base); 
+                power = power - 1; //if odd power -> make even
+                //cout << "power is " << power << endl; 
+            }
+        }
+        else if (base > mod)
+        {
+            //cout << "base > mod " << base << endl; 
+            base %= mod; 
+           // cout << "base modded" << base << endl; 
+        }
+
+        if(power == 1)
+        {
+            break; 
+        }
+
+    }
+
+    //cout << endl << "<3<3<3<3" << endl; 
+
+    //actually compute the number
+
+    //multiply all the factored out numbers
+    //cout << "the factors" << endl; 
+    for(int i = 0; i < factors.size(); i++)
+    {
+        product = product * factors.at(i); 
+        product %= mod; 
+    }
+
+    if(power == 1)
+    {
+        operand = base % mod; 
+    } 
+    else
+    {
+        operand = (base * base) % mod; 
+    }
+
+    
+    product = operand * product; 
+   // cout << "Product is " << product % mod << endl; 
+    
+    return product % mod; 
+
 }
