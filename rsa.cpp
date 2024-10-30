@@ -11,9 +11,9 @@ bool isTwoPrimes(int n);
 int modInverse(int e, int phi);
 void decoder(int d, int n, const vector <int> &encrypted, vector <int> &decrypted);
 int compute_mod(int d, int n, int C);
+vector<int> decrypt(int d, int n, vector<int> nums);
 
 int main() {
-    // Ask user for e, n, and m, where m is the amount of numbers to decrypt, then ask for the numbers to decrypt
     int e, n, m, p = 0, q = 0, phi;
     cout << "Enter e: ";
     cin >> e;
@@ -34,38 +34,125 @@ int main() {
 
     vector<int> encoded;
     getMsg(encoded, m);
-//find p and q, using a bool to know when the values are found
-   bool found = false; 
-   for(int i = 0; i <= n && found != true; ++i){
-        for(int j = i + 1; j <= n; ++j){
-            //make sure they are distinct
-            if(i * j == n && i != j){
-                //make sure they are both primes
-                if(isPrime(i) == true && isPrime(j) == true){
-                    p = i; 
-                    q = j; //p < q(j) -> bigger val
-                    found = true; 
-                    break; 
-                }
+
+    bool found = false; 
+    for(int i = 2; i <= sqrt(n) && !found; ++i){
+        if(n % i == 0){
+            int j = n / i;
+            if(isPrime(i) && isPrime(j) && i != j){
+                p = i; 
+                q = j;
+                found = true; 
+                break; 
             }
         }
-   }
+    }
     if (found) {
         cout << "p: " << p << endl;
         cout << "q: " << q << endl;
     } else {
         cout << "Failed to find distinct prime factors for n." << endl;
+        return 0;
     }
 
-        phi = (p-1) * (q-1); 
-        cout<<"phi: "<<phi<<endl;
+    phi = (p-1) * (q-1); 
+    cout << "phi: " << phi << endl;
 
-int d = modInverse(e, phi);
-cout<<"d: "<<d<<endl;
+    int d = modInverse(e, phi);
+    if (d == -1) {
+        cout << "Public key is not valid!" << endl; 
+        return 0; 
+    }
+    cout << "d: " << d << endl;
+
+    vector<int> decrypted;    
+    decoder(d, n, encoded, decrypted); 
+
+    cout << "Encrypted values: ";
+    for(int i = 0; i < encoded.size(); i++) {
+        cout << encoded.at(i) << " ";
+    }
+    cout << endl; 
+
+    cout << "Decrypted values: ";
+    for(int i = 0; i < decrypted.size(); i++) {
+        cout << decrypted.at(i) << " ";
+    }
+    cout << endl;
+
+    cout << "Decrypted message: " <<endl;
+   
+    for(int i = 0; i < decrypted.size(); i++) {
+        int value = decrypted.at(i);
+        if(value == 7) {
+            cout << "A"; 
+        } else if(value == 8) {
+            cout << "B"; 
+        } else if(value == 9) {
+            cout << "C"; 
+        } else if(value == 10) {
+            cout << "D"; 
+        } else if(value == 11) {
+            cout << "E"; 
+        } else if(value == 12) {
+            cout << "F"; 
+        } else if(value == 13) {
+            cout << "G"; 
+        } else if(value == 14) {
+            cout << "H"; 
+        } else if(value == 15) {
+            cout << "I"; 
+        } else if(value == 16) {
+            cout << "J"; 
+        } else if(value == 17) {
+            cout << "K"; 
+        } else if(value == 18) {
+            cout << "L"; 
+        } else if(value == 19) {
+            cout << "M"; 
+        } else if(value == 20) {
+            cout << "N"; 
+        } else if(value == 21) {
+            cout << "O"; 
+        } else if(value == 22) {
+            cout << "P"; 
+        } else if(value == 23) {
+            cout << "Q"; 
+        } else if(value == 24) {
+            cout << "R"; 
+        } else if(value == 25) {
+            cout << "S"; 
+        } else if(value == 26) {
+            cout << "T"; 
+        } else if(value == 27) {
+            cout << "U"; 
+        } else if(value == 28) {
+            cout << "V"; 
+        } else if(value == 29) {
+            cout << "W"; 
+        } else if(value == 30) {
+            cout << "X"; 
+        } else if(value == 31) {
+            cout << "Y"; 
+        } else if(value == 32) {
+            cout << "Z"; 
+        } else if(value == 33) {
+            cout << " "; 
+        } else if(value == 34) {
+            cout << "\""; 
+        } else if(value == 35) {
+            cout << ","; 
+        } else if(value == 36) {
+            cout << "."; 
+        } else if(value == 37) {
+            cout << "'"; 
+        }
+    }
+    cout << endl;
 
     return 0;
-    
 }
+
 
 void getMsg(vector<int> &encoded, int M) {
     int a;
@@ -155,6 +242,20 @@ void decoder(int d, int n, const vector <int> &encrypted, vector <int> &decrypte
 
 }
 
+// int compute_mod(int base, int exp, int mod) {
+//     long long result = 1;
+//     long long baseMod = base % mod;
+
+//     while (exp > 0) {
+//         if (exp % 2 == 1) { // If exp is odd, multiply the result by baseMod
+//             result = (result * baseMod) % mod;
+//         }
+//         baseMod = (baseMod * baseMod) % mod; // Square the base
+//         exp /= 2; // Divide exp by 2
+//     }
+//     return static_cast<int>(result);
+// }
+
 int compute_mod(int d, int n, int C)
 {
     vector <int> factors; 
@@ -230,4 +331,26 @@ int compute_mod(int d, int n, int C)
     
     return product % mod; 
 
+}
+
+vector<int> decrypt(int d, int n, vector<int> nums) {
+    vector<int> newNums;
+    for (int i = 0; i < nums.size(); i++) {
+        long long answer = 1;
+        long long curr = nums.at(i);
+        long long exp = d;
+        
+        // Ensure curr is within modulus range initially
+        curr = curr % n;
+        
+        while (exp > 0) {
+            if (exp & 1) {  // Same as exp % 2 != 0
+                answer = (answer * curr) % n;
+            }
+            curr = (curr * curr) % n;
+            exp >>= 1;  // Same as exp / 2
+        }
+        newNums.push_back(static_cast<int>(answer));
+    }
+    return newNums;
 }
